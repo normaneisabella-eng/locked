@@ -1,5 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import cron from "node-cron";
+import { sendCheckinReminders } from "./routes/push";
 
 const rawPort = process.env["PORT"];
 
@@ -22,4 +24,13 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  // Send check-in reminders every day at 7:00 PM server time.
+  // Athletes who haven't checked in yet will get a push notification.
+  cron.schedule("0 19 * * *", async () => {
+    logger.info("Running daily check-in reminder job");
+    await sendCheckinReminders((msg) => logger.info(msg));
+  });
+
+  logger.info("Check-in reminder scheduler started (daily at 19:00)");
 });

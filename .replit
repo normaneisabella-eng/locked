@@ -30,3 +30,10 @@ externalPort = 80
 [[ports]]
 localPort = 19685
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+VAPID_PUBLIC_KEY = "BEurL4U4KxPeMBY6Znlp8JN40uy2uiC2JHi0dKOYySBGOAkB_-ScwDFAii0nlGOLSIneg3voAJy5qgq_dR3AJLY"
+VITE_VAPID_PUBLIC_KEY = "BEurL4U4KxPeMBY6Znlp8JN40uy2uiC2JHi0dKOYySBGOAkB_-ScwDFAii0nlGOLSIneg3voAJy5qgq_dR3AJLY"
+VAPID_PRIVATE_KEY = "1G4TfTBpGlnEPTf4rfZfAP2wW330Q14w8gXesjlZzcQ"

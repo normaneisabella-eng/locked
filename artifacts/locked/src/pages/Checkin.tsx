@@ -10,6 +10,7 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
+import NotificationBanner from "@/components/NotificationBanner";
 
 function ScoreSlider({
   label,
@@ -156,6 +157,7 @@ export default function Checkin() {
               <p className="text-primary text-sm font-semibold">Check-in complete. Come back tomorrow.</p>
               <p className="text-muted-foreground text-xs mt-1">Consistency builds mental strength.</p>
             </div>
+            <NotificationBanner />
           </div>
         ) : (
           /* Check-in form */
@@ -216,6 +218,7 @@ export default function Checkin() {
                 {(createCheckin.error as any)?.data?.error ?? "Something went wrong. Try again."}
               </p>
             )}
+            <NotificationBanner />
           </div>
         )}
       </div>
