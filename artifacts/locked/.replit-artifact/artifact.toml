@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Locked"
+version = "1.0.0"
+id = "artifacts/locked"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19685
+
+[services.development]
+run = "pnpm --filter @workspace/locked run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/locked", "run", "build" ]
+publicDir = "artifacts/locked/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19685"
+BASE_PATH = "/"
