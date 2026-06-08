@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useUpsertMe } from "@workspace/api-client-react";
+import { useUpsertMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey } from "@workspace/api-client-react";
 
 const SPORTS = [
   "Basketball", "Soccer", "Football", "Baseball", "Tennis",
@@ -32,42 +31,85 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12">
+    <div
+      style={{ background: "#0a0a0a", fontFamily: "'Barlow', sans-serif" }}
+      className="min-h-screen text-white flex flex-col items-center justify-center px-6 py-12"
+    >
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+
       <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <div className="font-display text-4xl text-primary tracking-widest mb-2">LOCKED</div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Set up your profile</h1>
-          <p className="text-muted-foreground text-sm">Tell us about yourself to get started</p>
+        {/* Header */}
+        <div className="mb-10">
+          <div
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em" }}
+            className="text-2xl font-bold mb-6"
+          >
+            <span className="text-white">Locke</span>
+            <span style={{ color: "#00e5a0" }}>d</span>
+          </div>
+          <h1
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}
+            className="text-5xl font-black uppercase text-white mb-3"
+          >
+            Set up your<br />
+            <span style={{ color: "#00e5a0" }}>profile</span>
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.4)" }} className="text-sm font-light">
+            Tell us who you are so we can match your community.
+          </p>
         </div>
 
-        <div className="bg-card border border-card-border rounded-2xl p-8 space-y-6">
+        {/* Card */}
+        <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }} className="p-8 space-y-7">
           {/* Display name */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Your name or handle</label>
+            <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-2">
+              Your name or handle
+            </label>
             <input
               data-testid="input-display-name"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g. Jordan23, Coach Mike..."
-              className="w-full bg-background border border-input rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              style={{
+                background: "#1a1a1a",
+                border: "1px solid #2a2a2a",
+                borderRadius: "10px",
+                color: "white",
+                fontFamily: "'Barlow', sans-serif",
+              }}
+              className="w-full px-4 py-3 text-sm placeholder:text-white/20 focus:outline-none focus:border-[#00e5a0]/50 transition-colors"
             />
           </div>
 
           {/* Sport selection */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-3">Your sport</label>
+            <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-3">
+              Your sport
+            </label>
             <div className="grid grid-cols-3 gap-2">
               {SPORTS.map((s) => (
                 <button
                   key={s}
                   data-testid={`button-sport-${s}`}
                   onClick={() => setSport(s)}
-                  className={`text-xs px-2 py-2.5 rounded-lg border transition-all font-medium ${
-                    sport === s
-                      ? "bg-primary border-primary text-primary-foreground"
-                      : "bg-secondary border-border text-secondary-foreground hover:border-primary/50"
-                  }`}
+                  style={{
+                    background: sport === s ? "#00e5a0" : "#1a1a1a",
+                    border: `1px solid ${sport === s ? "#00e5a0" : "#2a2a2a"}`,
+                    color: sport === s ? "#0a0a0a" : "rgba(255,255,255,0.5)",
+                    borderRadius: "8px",
+                    fontFamily: "'Barlow', sans-serif",
+                    padding: "8px 6px",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    transition: "all 0.15s",
+                  }}
                 >
                   {s}
                 </button>
@@ -75,17 +117,25 @@ export default function Onboarding() {
             </div>
           </div>
 
+          {/* CTA */}
           <button
             data-testid="button-complete-onboarding"
             onClick={handleSubmit}
             disabled={!sport || !displayName.trim() || upsertMe.isPending}
-            className="w-full bg-primary text-primary-foreground py-3.5 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: !sport || !displayName.trim() || upsertMe.isPending ? "#1a1a1a" : "#00e5a0",
+              color: !sport || !displayName.trim() || upsertMe.isPending ? "rgba(255,255,255,0.3)" : "#0a0a0a",
+              borderRadius: "10px",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              letterSpacing: "0.05em",
+            }}
+            className="w-full py-4 font-bold text-base uppercase tracking-wide transition-all disabled:cursor-not-allowed"
           >
-            {upsertMe.isPending ? "Setting up..." : "Get locked in"}
+            {upsertMe.isPending ? "Setting up..." : "Get Locked In →"}
           </button>
 
           {upsertMe.isError && (
-            <p className="text-destructive text-xs text-center">Something went wrong. Try again.</p>
+            <p className="text-red-400 text-xs text-center">Something went wrong. Try again.</p>
           )}
         </div>
       </div>
