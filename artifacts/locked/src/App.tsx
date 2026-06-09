@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
@@ -127,7 +127,7 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   if (!isLoaded || isLoading) return null;
-  if (!isSignedIn) return <>{children}</>;
+  if (!isSignedIn) return <Redirect to="/" />;
 
   const needsOnboarding = isError || !me;
   if (needsOnboarding && location !== "/onboarding") {
@@ -140,46 +140,38 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function HomeRedirect() {
-  return (
-    <>
-      <Show when="signed-in">
-        <Redirect to="/checkin" />
-      </Show>
-      <Show when="signed-out">
-        <Landing />
-      </Show>
-    </>
-  );
-}
-
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  return (
-    <>
-      <Show when="signed-in">
-        <Component />
-      </Show>
-      <Show when="signed-out">
-        <Redirect to="/" />
-      </Show>
-    </>
-  );
-}
-
 function AppRoutes() {
   return (
-    <OnboardingGate>
-      <Switch>
-        <Route path="/" component={HomeRedirect} />
-        <Route path="/sign-in/*?" component={SignInPage} />
-        <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route path="/onboarding" component={Onboarding} />
-        <Route path="/checkin" component={() => <ProtectedRoute component={Checkin} />} />
-        <Route path="/feed" component={() => <ProtectedRoute component={Feed} />} />
-        <Route path="/history" component={() => <ProtectedRoute component={History} />} />
-        <Route component={NotFound} />
-      </Switch>
-    </OnboardingGate>
+    <Switch>
+      {/* Always-public routes — no auth gate */}
+      <Route path="/" component={Landing} />
+      <Route path="/sign-in/*?" component={SignInPage} />
+      <Route path="/sign-up/*?" component={SignUpPage} />
+
+      {/* Protected routes — OnboardingGate handles auth + onboarding checks */}
+      <Route path="/onboarding">
+        <OnboardingGate>
+          <Onboarding />
+        </OnboardingGate>
+      </Route>
+      <Route path="/checkin">
+        <OnboardingGate>
+          <Checkin />
+        </OnboardingGate>
+      </Route>
+      <Route path="/feed">
+        <OnboardingGate>
+          <Feed />
+        </OnboardingGate>
+      </Route>
+      <Route path="/history">
+        <OnboardingGate>
+          <History />
+        </OnboardingGate>
+      </Route>
+
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
