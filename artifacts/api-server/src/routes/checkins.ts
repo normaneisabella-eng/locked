@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, and, gte, lt, count, avg, sql } from "drizzle-orm";
+import { eq, desc, and, gte, lt, count } from "drizzle-orm";
 import { db, checkinsTable, usersTable } from "@workspace/db";
 import {
   CreateCheckinBody,
@@ -12,18 +12,18 @@ import { requireAuth } from "../middlewares/requireAuth";
 const router: IRouter = Router();
 
 router.get("/checkins", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
   const params = ListMyCheckinsQueryParams.safeParse(req.query);
   const page = params.success ? (params.data.page ?? 1) : 1;
   const limit = params.success ? (params.data.limit ?? 20) : 20;
   const offset = (page - 1) * limit;
 
   const [totalResult, checkins] = await Promise.all([
-    db.select({ count: count() }).from(checkinsTable).where(eq(checkinsTable.clerkId, clerkId)),
+    db.select({ count: count() }).from(checkinsTable).where(eq(checkinsTable.userId, userId)),
     db
       .select()
       .from(checkinsTable)
-      .where(eq(checkinsTable.clerkId, clerkId))
+      .where(eq(checkinsTable.userId, userId))
       .orderBy(desc(checkinsTable.createdAt))
       .limit(limit)
       .offset(offset),
@@ -40,21 +40,19 @@ router.get("/checkins", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.post("/checkins", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
   const parsed = CreateCheckinBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  // Get user's sport
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId));
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.userId, userId));
   if (!user) {
     res.status(400).json({ error: "User profile not found. Complete onboarding first." });
     return;
   }
 
-  // Check if already checked in today
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const tomorrowStart = new Date(todayStart);
@@ -65,7 +63,7 @@ router.post("/checkins", requireAuth, async (req, res): Promise<void> => {
     .from(checkinsTable)
     .where(
       and(
-        eq(checkinsTable.clerkId, clerkId),
+        eq(checkinsTable.userId, userId),
         gte(checkinsTable.createdAt, todayStart),
         lt(checkinsTable.createdAt, tomorrowStart),
       ),
@@ -79,7 +77,7 @@ router.post("/checkins", requireAuth, async (req, res): Promise<void> => {
   const [checkin] = await db
     .insert(checkinsTable)
     .values({
-      clerkId,
+      userId,
       sport: user.sport,
       focusScore: parsed.data.focusScore,
       confidenceScore: parsed.data.confidenceScore,
@@ -92,7 +90,7 @@ router.post("/checkins", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.get("/checkins/today", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -104,7 +102,7 @@ router.get("/checkins/today", requireAuth, async (req, res): Promise<void> => {
     .from(checkinsTable)
     .where(
       and(
-        eq(checkinsTable.clerkId, clerkId),
+        eq(checkinsTable.userId, userId),
         gte(checkinsTable.createdAt, todayStart),
         lt(checkinsTable.createdAt, tomorrowStart),
       ),

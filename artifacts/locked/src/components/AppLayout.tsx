@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { useClerk } from "@clerk/react";
+import { useAuth } from "@/context/AuthContext";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -11,11 +11,10 @@ const NAV_ITEMS = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { signOut } = useClerk();
+  const { signOut } = useAuth();
 
   return (
     <div style={{ background: "#0a0a0a", fontFamily: "'Barlow', sans-serif" }} className="min-h-screen text-white flex flex-col">
-      {/* Google Fonts */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       <link
@@ -23,10 +22,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         rel="stylesheet"
       />
 
-      {/* Navbar */}
       <nav style={{ borderBottom: "1px solid #141414", background: "rgba(10,10,10,0.95)" }} className="sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-2xl mx-auto px-6 flex items-center justify-between h-14">
-          {/* Logo */}
           <Link href="/checkin">
             <span
               style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em", cursor: "pointer" }}
@@ -37,7 +34,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
 
-          {/* Nav links */}
           <div className="flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
               const active = location === item.href || location.startsWith(item.href + "/");
@@ -60,10 +56,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             })}
           </div>
 
-          {/* Sign out */}
           <button
             data-testid="button-sign-out"
-            onClick={() => signOut({ redirectUrl: basePath || "/" })}
+            onClick={() => signOut().then(() => { window.location.href = basePath || "/"; })}
             style={{ color: "rgba(255,255,255,0.3)", fontFamily: "'Barlow', sans-serif" }}
             className="text-xs font-medium hover:text-white transition-colors"
           >

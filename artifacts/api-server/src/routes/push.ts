@@ -1,14 +1,13 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db } from "@workspace/db";
-import { pushSubscriptionsTable } from "@workspace/db";
+import { db, pushSubscriptionsTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/requireAuth";
 import webpush from "web-push";
 
 const router: IRouter = Router();
 
 router.post("/push/subscribe", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
   const { endpoint, keys } = req.body ?? {};
   if (typeof endpoint !== "string" || !keys?.p256dh || !keys?.auth) {
     res.status(400).json({ error: "Invalid subscription payload" });
@@ -17,10 +16,10 @@ router.post("/push/subscribe", requireAuth, async (req, res): Promise<void> => {
 
   await db
     .insert(pushSubscriptionsTable)
-    .values({ clerkId, endpoint, p256dh: keys.p256dh, auth: keys.auth })
+    .values({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth })
     .onConflictDoUpdate({
       target: pushSubscriptionsTable.endpoint,
-      set: { clerkId, p256dh: keys.p256dh, auth: keys.auth },
+      set: { userId, p256dh: keys.p256dh, auth: keys.auth },
     });
 
   res.json({ ok: true });
@@ -48,11 +47,7 @@ export async function sendCheckinReminders(log: (msg: string) => void) {
     return;
   }
 
-  webpush.setVapidDetails(
-    "mailto:locked@example.com",
-    vapidPublicKey,
-    vapidPrivateKey,
-  );
+  webpush.setVapidDetails("mailto:locked@example.com", vapidPublicKey, vapidPrivateKey);
 
   const subs = await db.select().from(pushSubscriptionsTable);
   log(`Sending check-in reminders to ${subs.length} subscriptions`);

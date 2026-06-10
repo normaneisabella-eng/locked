@@ -1,0 +1,2 @@
+- [Supabase auth migration](supabase-auth.md) — Clerk replaced with Supabase; JWT sent as Bearer token; setAuthTokenGetter wires all API hooks automatically
+- [DB migration TTY issue](db-migration-tty.md) — drizzle-kit push requires TTY for column rename prompts; use raw SQL instead

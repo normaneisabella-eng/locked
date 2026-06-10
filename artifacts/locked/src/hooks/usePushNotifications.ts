@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -8,6 +9,12 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = window.atob(base64);
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0))).buffer as ArrayBuffer;
+}
+
+async function getAuthHeader(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export type NotifState = "unsupported" | "default" | "granted" | "denied" | "subscribed";
@@ -54,10 +61,10 @@ export function usePushNotifications() {
       });
 
       const json = sub.toJSON();
+      const authHeader = await getAuthHeader();
       await fetch(`${basePath}/api/push/subscribe`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: { "Content-Type": "application/json", ...authHeader },
         body: JSON.stringify({
           endpoint: sub.endpoint,
           keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
@@ -78,10 +85,10 @@ export function usePushNotifications() {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
       if (sub) {
+        const authHeader = await getAuthHeader();
         await fetch(`${basePath}/api/push/subscribe`, {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: { "Content-Type": "application/json", ...authHeader },
           body: JSON.stringify({ endpoint: sub.endpoint }),
         });
         await sub.unsubscribe();

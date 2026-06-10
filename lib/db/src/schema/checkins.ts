@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 
 export const checkinsTable = pgTable("checkins", {
   id: serial("id").primaryKey(),
-  clerkId: text("clerk_id").notNull(),
+  userId: text("user_id").notNull(),
   sport: text("sport").notNull(),
   focusScore: integer("focus_score").notNull(),
   confidenceScore: integer("confidence_score").notNull(),

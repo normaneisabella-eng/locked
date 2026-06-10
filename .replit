@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -37,3 +37,10 @@ externalPort = 3000
 VAPID_PUBLIC_KEY = "BEurL4U4KxPeMBY6Znlp8JN40uy2uiC2JHi0dKOYySBGOAkB_-ScwDFAii0nlGOLSIneg3voAJy5qgq_dR3AJLY"
 VITE_VAPID_PUBLIC_KEY = "BEurL4U4KxPeMBY6Znlp8JN40uy2uiC2JHi0dKOYySBGOAkB_-ScwDFAii0nlGOLSIneg3voAJy5qgq_dR3AJLY"
 VAPID_PRIVATE_KEY = "1G4TfTBpGlnEPTf4rfZfAP2wW330Q14w8gXesjlZzcQ"
+VITE_SUPABASE_URL = "https://zzshjviscmillyujezdw.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6c2hqdmlzY21pbGx5dWplemR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzkyOTYsImV4cCI6MjA5NjYxNTI5Nn0.Fp_Rz5Z0oY0BQJY2qXEmz0ILv46IwIxx8TmddRiYccc"
+SUPABASE_URL = "https://zzshjviscmillyujezdw.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6c2hqdmlzY21pbGx5dWplemR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzkyOTYsImV4cCI6MjA5NjYxNTI5Nn0.Fp_Rz5Z0oY0BQJY2qXEmz0ILv46IwIxx8TmddRiYccc"
+
+[nix]
+channel = "stable-25_05"

@@ -7,8 +7,8 @@ import { requireAuth } from "../middlewares/requireAuth";
 const router: IRouter = Router();
 
 router.get("/users/me", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId));
+  const userId = (req as any).userId;
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.userId, userId));
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
@@ -17,7 +17,7 @@ router.get("/users/me", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.put("/users/me", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
   const parsed = UpsertMeBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -26,9 +26,9 @@ router.put("/users/me", requireAuth, async (req, res): Promise<void> => {
 
   const [user] = await db
     .insert(usersTable)
-    .values({ clerkId, ...parsed.data })
+    .values({ userId, ...parsed.data })
     .onConflictDoUpdate({
-      target: usersTable.clerkId,
+      target: usersTable.userId,
       set: {
         sport: parsed.data.sport,
         displayName: parsed.data.displayName,

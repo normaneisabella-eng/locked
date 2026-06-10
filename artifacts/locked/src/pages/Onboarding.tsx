@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useUpsertMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const SPORTS = [
   "Basketball", "Soccer", "Football", "Baseball", "Tennis",
@@ -10,21 +12,47 @@ const SPORTS = [
   "Golf", "Rugby", "Lacrosse", "Other",
 ];
 
+const LEVELS = ["Beginner", "Intermediate", "Advanced", "Elite"];
+
+const GREEN = "#00e5a0";
+
 export default function Onboarding() {
   const [, setLocation] = useLocation();
   const [sport, setSport] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [level, setLevel] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const upsertMe = useUpsertMe();
+  const { user } = useAuth();
 
-  const handleSubmit = () => {
-    if (!sport || !displayName.trim()) return;
+  const handleSubmit = async () => {
+    if (!sport || !displayName.trim() || !level) return;
+    setError(null);
+
     upsertMe.mutate(
       { data: { sport, displayName: displayName.trim() } },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          // Also save full profile to Supabase profiles table
+          if (user) {
+            const { error: profileError } = await supabase
+              .from("profiles")
+              .upsert({
+                id: user.id,
+                display_name: displayName.trim(),
+                sport,
+                level,
+              });
+            if (profileError) {
+              console.error("Supabase profile save error:", profileError.message);
+            }
+          }
           queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
           setLocation("/checkin");
+        },
+        onError: (err: any) => {
+          setError(err?.data?.error ?? "Something went wrong. Try again.");
         },
       },
     );
@@ -43,33 +71,31 @@ export default function Onboarding() {
       />
 
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="mb-10">
           <div
             style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em" }}
             className="text-2xl font-bold mb-6"
           >
             <span className="text-white">Locke</span>
-            <span style={{ color: "#00e5a0" }}>d</span>
+            <span style={{ color: GREEN }}>d</span>
           </div>
           <h1
             style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}
             className="text-5xl font-black uppercase text-white mb-3"
           >
             Set up your<br />
-            <span style={{ color: "#00e5a0" }}>profile</span>
+            <span style={{ color: GREEN }}>profile</span>
           </h1>
           <p style={{ color: "rgba(255,255,255,0.4)" }} className="text-sm font-light">
             Tell us who you are so we can match your community.
           </p>
         </div>
 
-        {/* Card */}
         <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }} className="p-8 space-y-7">
           {/* Display name */}
           <div>
             <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-2">
-              Your name or handle
+              Name or handle
             </label>
             <input
               data-testid="input-display-name"
@@ -83,8 +109,10 @@ export default function Onboarding() {
                 borderRadius: "10px",
                 color: "white",
                 fontFamily: "'Barlow', sans-serif",
+                width: "100%",
+                padding: "12px 14px",
               }}
-              className="w-full px-4 py-3 text-sm placeholder:text-white/20 focus:outline-none focus:border-[#00e5a0]/50 transition-colors"
+              className="text-sm placeholder:text-white/20 focus:outline-none focus:border-[#00e5a0]/40 transition-colors"
             />
           </div>
 
@@ -100,8 +128,8 @@ export default function Onboarding() {
                   data-testid={`button-sport-${s}`}
                   onClick={() => setSport(s)}
                   style={{
-                    background: sport === s ? "#00e5a0" : "#1a1a1a",
-                    border: `1px solid ${sport === s ? "#00e5a0" : "#2a2a2a"}`,
+                    background: sport === s ? GREEN : "#1a1a1a",
+                    border: `1px solid ${sport === s ? GREEN : "#2a2a2a"}`,
                     color: sport === s ? "#0a0a0a" : "rgba(255,255,255,0.5)",
                     borderRadius: "8px",
                     fontFamily: "'Barlow', sans-serif",
@@ -117,25 +145,55 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Level selection */}
+          <div>
+            <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-3">
+              Your level
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {LEVELS.map((l) => (
+                <button
+                  key={l}
+                  data-testid={`button-level-${l}`}
+                  onClick={() => setLevel(l)}
+                  style={{
+                    background: level === l ? GREEN : "#1a1a1a",
+                    border: `1px solid ${level === l ? GREEN : "#2a2a2a"}`,
+                    color: level === l ? "#0a0a0a" : "rgba(255,255,255,0.5)",
+                    borderRadius: "8px",
+                    fontFamily: "'Barlow', sans-serif",
+                    padding: "10px 6px",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button
             data-testid="button-complete-onboarding"
             onClick={handleSubmit}
-            disabled={!sport || !displayName.trim() || upsertMe.isPending}
+            disabled={!sport || !displayName.trim() || !level || upsertMe.isPending}
             style={{
-              background: !sport || !displayName.trim() || upsertMe.isPending ? "#1a1a1a" : "#00e5a0",
-              color: !sport || !displayName.trim() || upsertMe.isPending ? "rgba(255,255,255,0.3)" : "#0a0a0a",
+              background: !sport || !displayName.trim() || !level || upsertMe.isPending ? "#1a1a1a" : GREEN,
+              color: !sport || !displayName.trim() || !level || upsertMe.isPending ? "rgba(255,255,255,0.3)" : "#0a0a0a",
               borderRadius: "10px",
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: "0.05em",
+              width: "100%",
+              padding: "16px",
             }}
-            className="w-full py-4 font-bold text-base uppercase tracking-wide transition-all disabled:cursor-not-allowed"
+            className="font-black text-base uppercase tracking-wide transition-all disabled:cursor-not-allowed"
           >
             {upsertMe.isPending ? "Setting up..." : "Get Locked In →"}
           </button>
 
-          {upsertMe.isError && (
-            <p className="text-red-400 text-xs text-center">Something went wrong. Try again.</p>
+          {error && (
+            <p className="text-red-400 text-xs text-center">{error}</p>
           )}
         </div>
       </div>

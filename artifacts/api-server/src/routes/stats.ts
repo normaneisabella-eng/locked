@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, avg, count, sql } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { db, checkinsTable } from "@workspace/db";
 import { GetMyStatsResponse, GetMyTrendResponse } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
@@ -7,12 +7,12 @@ import { requireAuth } from "../middlewares/requireAuth";
 const router: IRouter = Router();
 
 router.get("/stats/me", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
 
   const allCheckins = await db
     .select()
     .from(checkinsTable)
-    .where(eq(checkinsTable.clerkId, clerkId))
+    .where(eq(checkinsTable.userId, userId))
     .orderBy(desc(checkinsTable.createdAt));
 
   const totalCheckins = allCheckins.length;
@@ -32,19 +32,14 @@ router.get("/stats/me", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  // Calculate streaks — checkins ordered newest first
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let streak = 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build set of unique dates (YYYY-MM-DD)
   const dates = new Set(
     allCheckins.map((c) => c.createdAt.toISOString().slice(0, 10)),
   );
 
-  // Streak calculation: count consecutive days going back from today
+  let currentStreak = 0;
   let checkDate = new Date(today);
   while (true) {
     const dateStr = checkDate.toISOString().slice(0, 10);
@@ -56,8 +51,8 @@ router.get("/stats/me", requireAuth, async (req, res): Promise<void> => {
     }
   }
 
-  // Longest streak
   const sortedDates = Array.from(dates).sort();
+  let longestStreak = 0;
   let tempStreak = 1;
   for (let i = 1; i < sortedDates.length; i++) {
     const prev = new Date(sortedDates[i - 1]);
@@ -72,12 +67,9 @@ router.get("/stats/me", requireAuth, async (req, res): Promise<void> => {
   }
   longestStreak = Math.max(longestStreak, 1, currentStreak);
 
-  const avgFocus =
-    allCheckins.reduce((s, c) => s + c.focusScore, 0) / totalCheckins;
-  const avgConfidence =
-    allCheckins.reduce((s, c) => s + c.confidenceScore, 0) / totalCheckins;
-  const avgEnergy =
-    allCheckins.reduce((s, c) => s + c.energyScore, 0) / totalCheckins;
+  const avgFocus = allCheckins.reduce((s, c) => s + c.focusScore, 0) / totalCheckins;
+  const avgConfidence = allCheckins.reduce((s, c) => s + c.confidenceScore, 0) / totalCheckins;
+  const avgEnergy = allCheckins.reduce((s, c) => s + c.energyScore, 0) / totalCheckins;
   const avgOverall = (avgFocus + avgConfidence + avgEnergy) / 3;
 
   res.json(
@@ -94,7 +86,7 @@ router.get("/stats/me", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.get("/stats/me/trend", requireAuth, async (req, res): Promise<void> => {
-  const clerkId = (req as any).userId;
+  const userId = (req as any).userId;
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -104,16 +96,11 @@ router.get("/stats/me/trend", requireAuth, async (req, res): Promise<void> => {
     .select()
     .from(checkinsTable)
     .where(
-      sql`${checkinsTable.clerkId} = ${clerkId} AND ${checkinsTable.createdAt} >= ${thirtyDaysAgo}`,
+      sql`${checkinsTable.userId} = ${userId} AND ${checkinsTable.createdAt} >= ${thirtyDaysAgo}`,
     )
     .orderBy(checkinsTable.createdAt);
 
-  // Group by date
-  const byDate = new Map<
-    string,
-    { focus: number[]; confidence: number[]; energy: number[] }
-  >();
-
+  const byDate = new Map<string, { focus: number[]; confidence: number[]; energy: number[] }>();
   for (const c of checkins) {
     const date = c.createdAt.toISOString().slice(0, 10);
     if (!byDate.has(date)) {
@@ -127,8 +114,7 @@ router.get("/stats/me/trend", requireAuth, async (req, res): Promise<void> => {
 
   const trend = Array.from(byDate.entries()).map(([date, vals]) => {
     const avgF = vals.focus.reduce((a, b) => a + b, 0) / vals.focus.length;
-    const avgC =
-      vals.confidence.reduce((a, b) => a + b, 0) / vals.confidence.length;
+    const avgC = vals.confidence.reduce((a, b) => a + b, 0) / vals.confidence.length;
     const avgE = vals.energy.reduce((a, b) => a + b, 0) / vals.energy.length;
     return {
       date,
