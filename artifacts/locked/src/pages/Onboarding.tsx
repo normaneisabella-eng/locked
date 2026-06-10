@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useUpsertMe, getGetMeQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 
@@ -27,36 +25,27 @@ export default function Onboarding() {
   const [handle, setHandle] = useState("");
   const [level, setLevel] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-  const upsertMe = useUpsertMe();
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  const canSubmit = !!sport && !!handle.trim() && !!level && !upsertMe.isPending;
+  const canSubmit = !!sport && !!handle.trim() && !!level && !loading;
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !user) return;
+    setLoading(true);
     setError(null);
 
-    upsertMe.mutate(
-      { data: { sport, displayName: handle.trim() } },
-      {
-        onSuccess: async () => {
-          if (user) {
-            const { error: profileError } = await supabase
-              .from("profiles")
-              .upsert({ id: user.id, handle: handle.trim(), sport, level });
-            if (profileError) {
-              console.error("Supabase profile save error:", profileError.message);
-            }
-          }
-          queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-          setLocation("/checkin");
-        },
-        onError: (err: any) => {
-          setError(err?.data?.error ?? "Something went wrong. Try again.");
-        },
-      },
-    );
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .upsert({ id: user.id, handle: handle.trim(), sport, level });
+
+    if (profileError) {
+      setError("Failed to save profile. Try again.");
+      setLoading(false);
+      return;
+    }
+
+    setLocation("/checkin");
   };
 
   return (
@@ -191,7 +180,7 @@ export default function Onboarding() {
             }}
             className="font-black text-base uppercase tracking-wide transition-all disabled:cursor-not-allowed"
           >
-            {upsertMe.isPending ? "Setting up..." : "Get Locked In →"}
+            {loading ? "Setting up..." : "Get Locked In →"}
           </button>
 
           {error && (

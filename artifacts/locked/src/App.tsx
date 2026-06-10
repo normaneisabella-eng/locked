@@ -1,8 +1,9 @@
+import { useEffect, useState } from "react";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { supabase } from "@/lib/supabase";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Landing from "@/pages/Landing";
 import SignIn from "@/pages/SignIn";
@@ -19,23 +20,37 @@ const queryClient = new QueryClient({
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
+type Profile = { id: string; handle: string; sport: string; level: string };
+
 function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const { isLoaded, session } = useAuth();
-  const { data: me, isLoading, isError } = useGetMe({
-    query: { enabled: isLoaded && !!session, queryKey: getGetMeQueryKey() },
-  });
+  const { isLoaded, session, user } = useAuth();
+  // undefined = still loading, null = no profile
+  const [profile, setProfile] = useState<Profile | null | undefined>(undefined);
   const [location] = useLocation();
 
-  if (!isLoaded || (session && isLoading)) return null;
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    setProfile(undefined); // reset while fetching
+    supabase
+      .from("profiles")
+      .select("id, handle, sport, level")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data ?? null));
+  }, [user?.id]);
+
+  // Still waiting for auth to load, or for profile fetch to complete
+  if (!isLoaded || (session && profile === undefined)) return null;
+
+  // Not signed in → send to landing
   if (!session) return <Redirect to="/" />;
 
-  const needsOnboarding = isError || !me;
-  if (needsOnboarding && location !== "/onboarding") {
-    return <Redirect to="/onboarding" />;
-  }
-  if (!needsOnboarding && location === "/onboarding") {
-    return <Redirect to="/checkin" />;
-  }
+  const needsOnboarding = !profile;
+  if (needsOnboarding && location !== "/onboarding") return <Redirect to="/onboarding" />;
+  if (!needsOnboarding && location === "/onboarding") return <Redirect to="/checkin" />;
 
   return <>{children}</>;
 }
@@ -43,12 +58,10 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Switch>
-      {/* Always-public routes */}
       <Route path="/" component={Landing} />
       <Route path="/sign-in" component={SignIn} />
       <Route path="/sign-up" component={SignUp} />
 
-      {/* Protected routes */}
       <Route path="/onboarding">
         <OnboardingGate>
           <Onboarding />
