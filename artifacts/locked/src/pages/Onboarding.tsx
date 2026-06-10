@@ -6,44 +6,45 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 
 const SPORTS = [
-  "Basketball", "Soccer", "Football", "Baseball", "Tennis",
-  "Swimming", "Track & Field", "CrossFit", "MMA", "Gymnastics",
-  "Volleyball", "Cycling", "Hockey", "Rowing", "Wrestling",
-  "Golf", "Rugby", "Lacrosse", "Other",
+  "Lacrosse", "Basketball", "Soccer", "Football", "Baseball",
+  "Softball", "Swimming", "Track & Field", "Volleyball", "Wrestling",
+  "Tennis", "Field Hockey", "Rowing", "Cross Country",
 ];
 
-const LEVELS = ["Beginner", "Intermediate", "Advanced", "Elite"];
+const LEVELS = [
+  "Middle School",
+  "High School JV",
+  "High School Varsity",
+  "Club / Travel",
+  "College",
+];
 
 const GREEN = "#00e5a0";
 
 export default function Onboarding() {
   const [, setLocation] = useLocation();
   const [sport, setSport] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [handle, setHandle] = useState("");
   const [level, setLevel] = useState("");
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const upsertMe = useUpsertMe();
   const { user } = useAuth();
 
+  const canSubmit = !!sport && !!handle.trim() && !!level && !upsertMe.isPending;
+
   const handleSubmit = async () => {
-    if (!sport || !displayName.trim() || !level) return;
+    if (!canSubmit) return;
     setError(null);
 
     upsertMe.mutate(
-      { data: { sport, displayName: displayName.trim() } },
+      { data: { sport, displayName: handle.trim() } },
       {
         onSuccess: async () => {
-          // Also save full profile to Supabase profiles table
           if (user) {
             const { error: profileError } = await supabase
               .from("profiles")
-              .upsert({
-                id: user.id,
-                display_name: displayName.trim(),
-                sport,
-                level,
-              });
+              .upsert({ id: user.id, handle: handle.trim(), sport, level });
             if (profileError) {
               console.error("Supabase profile save error:", profileError.message);
             }
@@ -92,17 +93,17 @@ export default function Onboarding() {
         </div>
 
         <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }} className="p-8 space-y-7">
-          {/* Display name */}
+          {/* Handle */}
           <div>
             <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-2">
-              Name or handle
+              Your handle
             </label>
             <input
               data-testid="input-display-name"
               type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g. Jordan23, Coach Mike..."
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              placeholder="e.g. Jordan23, CoachMike..."
               style={{
                 background: "#1a1a1a",
                 border: "1px solid #2a2a2a",
@@ -116,7 +117,7 @@ export default function Onboarding() {
             />
           </div>
 
-          {/* Sport selection */}
+          {/* Sport */}
           <div>
             <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-3">
               Your sport
@@ -145,12 +146,12 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Level selection */}
+          {/* Level */}
           <div>
             <label style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="block text-xs font-semibold uppercase mb-3">
               Your level
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="flex flex-col gap-2">
               {LEVELS.map((l) => (
                 <button
                   key={l}
@@ -162,9 +163,10 @@ export default function Onboarding() {
                     color: level === l ? "#0a0a0a" : "rgba(255,255,255,0.5)",
                     borderRadius: "8px",
                     fontFamily: "'Barlow', sans-serif",
-                    padding: "10px 6px",
-                    fontSize: "11px",
+                    padding: "10px 14px",
+                    fontSize: "13px",
                     fontWeight: 600,
+                    textAlign: "left",
                     transition: "all 0.15s",
                   }}
                 >
@@ -177,10 +179,10 @@ export default function Onboarding() {
           <button
             data-testid="button-complete-onboarding"
             onClick={handleSubmit}
-            disabled={!sport || !displayName.trim() || !level || upsertMe.isPending}
+            disabled={!canSubmit}
             style={{
-              background: !sport || !displayName.trim() || !level || upsertMe.isPending ? "#1a1a1a" : GREEN,
-              color: !sport || !displayName.trim() || !level || upsertMe.isPending ? "rgba(255,255,255,0.3)" : "#0a0a0a",
+              background: canSubmit ? GREEN : "#1a1a1a",
+              color: canSubmit ? "#0a0a0a" : "rgba(255,255,255,0.3)",
               borderRadius: "10px",
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: "0.05em",
