@@ -1,52 +1,188 @@
 import { useLocation } from "wouter";
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const GREEN = "#00e5a0";
 
 const SAMPLE_FEED = [
   {
     id: 1,
     sport: "Lacrosse",
     time: "14m ago",
-    head: 4,
-    weighing: "Big playoff game tomorrow. Overthinking it.",
-    win: "Play my game, not theirs.",
+    focus: 8,
+    confidence: 6,
+    energy: 7,
+    note: "Big playoff game tomorrow. Trying to stay in the moment and not overthink it.",
   },
   {
     id: 2,
     sport: "Lacrosse",
     time: "1h ago",
-    head: 3,
-    weighing: "Missed a few passes at practice. Stuck in my head.",
-    win: "Two clean feeds in the first half.",
+    focus: 5,
+    confidence: 4,
+    energy: 6,
+    note: "Missed a few passes at practice. Hard to shake it off.",
   },
   {
     id: 3,
     sport: "Lacrosse",
-    time: "2h ago",
-    head: 5,
-    weighing: "Nothing today. Feeling dialed in.",
-    win: "Lead by example. One big defensive stop.",
-  },
-  {
-    id: 4,
-    sport: "Lacrosse",
     time: "3h ago",
-    head: 2,
-    weighing: "Coach chewed me out. Hard to shake it.",
-    win: "Keep my composure and finish strong.",
+    focus: 9,
+    confidence: 9,
+    energy: 8,
+    note: null,
   },
 ];
 
-function HeadDots({ value }: { value: number }) {
+function PreviewScorePicker({
+  label,
+  sublabel,
+  selected,
+}: {
+  label: string;
+  sublabel: string;
+  selected: number;
+}) {
   return (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="w-2 h-2 rounded-full"
-          style={{ background: i <= value ? "#00e5a0" : "#222" }}
-        />
-      ))}
+    <div
+      style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "14px" }}
+      className="p-5"
+    >
+      <div className="flex items-baseline justify-between mb-1">
+        <span
+          style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em" }}
+          className="text-base font-bold uppercase text-white"
+        >
+          {label}
+        </span>
+        <span
+          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: GREEN }}
+          className="text-3xl font-black"
+        >
+          {selected}
+        </span>
+      </div>
+      <p style={{ color: "rgba(255,255,255,0.35)" }} className="text-xs mb-4">
+        {sublabel}
+      </p>
+      <div className="flex gap-2">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+          <div
+            key={n}
+            style={{
+              flex: 1,
+              height: "36px",
+              borderRadius: "6px",
+              background: n === selected ? GREEN : "#1a1a1a",
+              border: `1px solid ${n === selected ? GREEN : "#2a2a2a"}`,
+              color: n === selected ? "#0a0a0a" : "rgba(255,255,255,0.3)",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: "13px",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {n}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreviewFeedCard({
+  sport,
+  time,
+  focus,
+  confidence,
+  energy,
+  note,
+}: {
+  sport: string;
+  time: string;
+  focus: number;
+  confidence: number;
+  energy: number;
+  note: string | null;
+}) {
+  const overall = Math.round(((focus + confidence + energy) / 3) * 10) / 10;
+  return (
+    <div
+      style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "14px" }}
+      className="p-5"
+    >
+      {/* Row 1: sport tag + time + scores */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span
+            style={{
+              background: "#1a1a1a",
+              border: "1px solid #2a2a2a",
+              color: GREEN,
+              borderRadius: "6px",
+              padding: "2px 8px",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
+            {sport}
+          </span>
+          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>{time}</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {[
+            { label: "F", value: focus, color: GREEN },
+            { label: "C", value: confidence, color: "#60a5fa" },
+            { label: "E", value: energy, color: "#f59e0b" },
+          ].map((s) => (
+            <div key={s.label} className="flex flex-col items-center">
+              <span
+                style={{ color: "rgba(255,255,255,0.2)", fontSize: "9px", letterSpacing: "0.08em" }}
+              >
+                {s.label}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  color: s.color,
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  lineHeight: 1,
+                }}
+              >
+                {s.value}
+              </span>
+            </div>
+          ))}
+          <div style={{ borderLeft: "1px solid #2a2a2a" }} className="pl-3 flex flex-col items-center">
+            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "9px", letterSpacing: "0.08em" }}>
+              AVG
+            </span>
+            <span
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                color: "rgba(255,255,255,0.7)",
+                fontSize: "18px",
+                fontWeight: 800,
+                lineHeight: 1,
+              }}
+            >
+              {overall}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Note */}
+      {note && (
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px", fontStyle: "italic" }}>
+          "{note}"
+        </p>
+      )}
     </div>
   );
 }
@@ -59,35 +195,25 @@ export default function Landing() {
       style={{ background: "#0a0a0a", fontFamily: "'Barlow', sans-serif" }}
       className="min-h-screen text-white"
     >
-      {/* Google Fonts */}
-      <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-      />
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossOrigin=""
-      />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       <link
         href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Barlow:wght@300;400;500;600;700&display=swap"
         rel="stylesheet"
       />
 
-      {/* ── Navbar ───────────────────────────────────────────────────── */}
+      {/* ── Navbar ── */}
       <nav
         style={{ borderBottom: "1px solid #141414" }}
         className="flex items-center justify-between px-8 md:px-16 py-5"
       >
-        {/* Logo */}
         <div
           style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.08em" }}
-          className="text-2xl font-bold tracking-widest"
+          className="text-2xl font-bold"
         >
           <span className="text-white">Locke</span>
-          <span style={{ color: "#00e5a0" }}>d</span>
+          <span style={{ color: GREEN }}>d</span>
         </div>
-
         <div className="flex items-center gap-6">
           <button
             onClick={() => setLocation("/sign-in")}
@@ -97,7 +223,7 @@ export default function Landing() {
           </button>
           <button
             onClick={() => setLocation("/sign-up")}
-            style={{ background: "#00e5a0", color: "#0a0a0a" }}
+            style={{ background: GREEN, color: "#0a0a0a" }}
             className="text-sm font-bold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
           >
             Get started
@@ -105,52 +231,39 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      {/* ── Hero ── */}
       <section className="px-8 md:px-16 pt-24 pb-20 max-w-6xl mx-auto">
-        {/* Eyebrow */}
         <div className="flex items-center gap-3 mb-10">
-          <div style={{ background: "#00e5a0", width: "32px", height: "2px" }} />
+          <div style={{ background: GREEN, width: "32px", height: "2px" }} />
           <span
-            style={{ color: "#00e5a0", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.2em" }}
-            className="text-xs font-semibold uppercase tracking-widest"
+            style={{ color: GREEN, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.2em" }}
+            className="text-xs font-semibold uppercase"
           >
             Mental Performance
           </span>
         </div>
 
-        {/* Headline */}
         <h1
           style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 0.9 }}
           className="text-[clamp(72px,12vw,160px)] font-black uppercase leading-none mb-8"
         >
           <span className="block text-white">Train</span>
-          <span className="block" style={{ color: "#00e5a0" }}>Your</span>
-          <span
-            className="block"
-            style={{
-              WebkitTextStroke: "2px #fff",
-              color: "transparent",
-            }}
-          >
+          <span className="block" style={{ color: GREEN }}>Your</span>
+          <span className="block" style={{ WebkitTextStroke: "2px #fff", color: "transparent" }}>
             Mind
           </span>
         </h1>
 
-        {/* Subhead + CTA */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mt-10">
-          <p
-            className="text-xl md:text-2xl font-light max-w-md"
-            style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}
-          >
+          <p className="text-xl md:text-2xl font-light max-w-md" style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
             You train your body every day.
             <br />
             <span className="text-white font-medium">Your mind is the other half.</span>
           </p>
-
           <div className="flex flex-col items-start md:items-end gap-4">
             <button
               onClick={() => setLocation("/sign-up")}
-              style={{ background: "#00e5a0", color: "#0a0a0a" }}
+              style={{ background: GREEN, color: "#0a0a0a" }}
               className="font-bold text-base px-10 py-4 rounded-xl hover:opacity-90 transition-all hover:scale-105"
             >
               Get Started Free
@@ -161,21 +274,16 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Divider */}
         <div style={{ borderTop: "1px solid #1a1a1a" }} className="mt-20" />
       </section>
 
-      {/* ── Daily Check-In Card Preview ──────────────────────────────── */}
+      {/* ── Check-In Preview ── */}
       <section className="px-8 md:px-16 py-12 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-start gap-16">
           {/* Left label */}
           <div className="md:w-64 shrink-0">
             <div
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                letterSpacing: "0.15em",
-                color: "rgba(255,255,255,0.2)",
-              }}
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.15em", color: "rgba(255,255,255,0.2)" }}
               className="text-xs font-semibold uppercase mb-3"
             >
               Daily ritual
@@ -186,161 +294,113 @@ export default function Landing() {
             >
               Your 2-minute
               <br />
-              <span style={{ color: "#00e5a0" }}>check-in</span>
+              <span style={{ color: GREEN }}>check-in</span>
             </h2>
             <p className="mt-4 text-sm font-light" style={{ color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>
               Three questions. Every day. Build the habit of knowing where your head is before you compete.
             </p>
           </div>
 
-          {/* Card */}
-          <div className="flex-1">
-            <div
-              style={{
-                background: "#111",
-                border: "1px solid #1e1e1e",
-                borderRadius: "16px",
-                maxWidth: "520px",
-              }}
-              className="p-8"
-            >
-              {/* Card header */}
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <div
-                    style={{ fontFamily: "'Barlow Condensed', sans-serif", color: "#00e5a0", letterSpacing: "0.15em" }}
-                    className="text-xs font-semibold uppercase mb-1"
-                  >
-                    Monday, June 8
-                  </div>
-                  <div
-                    style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-                    className="text-2xl font-bold text-white uppercase"
-                  >
-                    Daily Check-In
-                  </div>
+          {/* Check-in card — exact replica of the real app */}
+          <div className="flex-1 max-w-[520px]">
+            {/* Header row */}
+            <div className="mb-5">
+              <div style={{ color: "rgba(255,255,255,0.25)", letterSpacing: "0.18em" }} className="text-xs font-semibold uppercase mb-1">
+                Monday, June 9
+              </div>
+              <div className="flex items-center gap-4">
+                <h3
+                  style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}
+                  className="text-4xl font-black uppercase text-white"
+                >
+                  Daily <span style={{ color: GREEN }}>Check-In</span>
+                </h3>
+                <span style={{ background: `${GREEN}18`, border: `1px solid ${GREEN}30`, color: GREEN, borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em" }}>
+                  Lacrosse
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <PreviewScorePicker
+                label="Focus"
+                sublabel="How sharp is your focus today?"
+                selected={8}
+              />
+              <PreviewScorePicker
+                label="Confidence"
+                sublabel="How confident do you feel going into training or competition?"
+                selected={7}
+              />
+              <PreviewScorePicker
+                label="Energy"
+                sublabel="How is your energy level right now?"
+                selected={6}
+              />
+
+              {/* Note */}
+              <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "14px" }} className="p-5">
+                <div style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.12em" }} className="text-xs font-semibold uppercase mb-3">
+                  Notes <span style={{ color: "rgba(255,255,255,0.2)", textTransform: "none", fontWeight: 400, letterSpacing: "normal" }}>(optional)</span>
                 </div>
                 <div
-                  style={{ background: "#00e5a0", borderRadius: "50%", width: "40px", height: "40px" }}
-                  className="flex items-center justify-center"
+                  style={{
+                    background: "#1a1a1a",
+                    border: "1px solid #2a2a2a",
+                    borderRadius: "8px",
+                    color: "rgba(255,255,255,0.4)",
+                    fontFamily: "'Barlow', sans-serif",
+                    fontSize: "13px",
+                    fontStyle: "italic",
+                    padding: "10px 12px",
+                    lineHeight: 1.5,
+                  }}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2a5 5 0 0 1 5 5v2H7V7a5 5 0 0 1 5-5z" />
-                    <rect x="3" y="9" width="18" height="13" rx="2" />
-                    <circle cx="12" cy="15" r="1.5" fill="#0a0a0a" />
-                  </svg>
+                  Big game tomorrow. Staying present and not overthinking it.
                 </div>
               </div>
 
-              {/* Questions */}
-              <div className="space-y-7">
-                {/* Q1 */}
-                <div>
-                  <div
-                    className="text-sm font-medium mb-3"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    01 &nbsp; How's your head today?
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <div
-                        key={n}
-                        style={{
-                          width: "42px",
-                          height: "42px",
-                          borderRadius: "10px",
-                          background: n === 4 ? "#00e5a0" : "#1a1a1a",
-                          color: n === 4 ? "#0a0a0a" : "rgba(255,255,255,0.4)",
-                          fontFamily: "'Barlow Condensed', sans-serif",
-                          fontSize: "18px",
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: n === 4 ? "none" : "1px solid #222",
-                        }}
-                      >
-                        {n}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {/* Overall bar */}
+              <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "12px" }} className="px-5 py-3 flex items-center justify-between">
+                <span style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em" }} className="text-xs font-semibold uppercase">Overall</span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", color: GREEN }} className="text-3xl font-black">
+                  7.0
+                </span>
+              </div>
 
-                {/* Q2 */}
-                <div>
-                  <div
-                    className="text-sm font-medium mb-2"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    02 &nbsp; What's weighing on you?
-                  </div>
-                  <div
-                    style={{
-                      background: "#1a1a1a",
-                      border: "1px solid #222",
-                      borderRadius: "10px",
-                      padding: "12px 14px",
-                      color: "rgba(255,255,255,0.25)",
-                      fontSize: "14px",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Big game tomorrow. Trying to stay present.
-                  </div>
-                </div>
-
-                {/* Q3 */}
-                <div>
-                  <div
-                    className="text-sm font-medium mb-2"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    03 &nbsp; What would make today a win?
-                  </div>
-                  <div
-                    style={{
-                      background: "#1a1a1a",
-                      border: "1px solid #222",
-                      borderRadius: "10px",
-                      padding: "12px 14px",
-                      color: "rgba(255,255,255,0.25)",
-                      fontSize: "14px",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Lock in at practice. Full effort.
-                  </div>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  style={{ background: "#00e5a0", color: "#0a0a0a", width: "100%", padding: "14px", borderRadius: "10px" }}
-                  className="font-bold text-sm opacity-60 cursor-default"
-                  disabled
-                >
-                  Submit check-in
-                </button>
+              {/* Submit button */}
+              <div
+                style={{
+                  background: GREEN,
+                  color: "#0a0a0a",
+                  borderRadius: "12px",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  letterSpacing: "0.08em",
+                  width: "100%",
+                  padding: "16px",
+                  textAlign: "center",
+                  fontWeight: 900,
+                  fontSize: "15px",
+                  textTransform: "uppercase",
+                  opacity: 0.85,
+                }}
+              >
+                Submit Check-In →
               </div>
             </div>
           </div>
         </div>
 
-        {/* Divider */}
         <div style={{ borderTop: "1px solid #1a1a1a" }} className="mt-20" />
       </section>
 
-      {/* ── Community Feed ───────────────────────────────────────────── */}
+      {/* ── Community Feed Preview ── */}
       <section className="px-8 md:px-16 py-12 max-w-6xl mx-auto pb-24">
         <div className="flex flex-col md:flex-row md:items-start gap-16">
           {/* Left label */}
           <div className="md:w-64 shrink-0">
             <div
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                letterSpacing: "0.15em",
-                color: "rgba(255,255,255,0.2)",
-              }}
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.15em", color: "rgba(255,255,255,0.2)" }}
               className="text-xs font-semibold uppercase mb-3"
             >
               Anonymous
@@ -351,68 +411,43 @@ export default function Landing() {
             >
               Community
               <br />
-              <span style={{ color: "#00e5a0" }}>Feed</span>
+              <span style={{ color: GREEN }}>Feed</span>
             </h2>
             <p className="mt-4 text-sm font-light" style={{ color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>
               See what athletes in your sport are mentally dealing with. Anonymous. No names. Just real minds.
             </p>
           </div>
 
-          {/* Feed posts */}
-          <div className="flex-1 space-y-4 max-w-lg">
-            {SAMPLE_FEED.map((post) => (
-              <div
-                key={post.id}
-                style={{
-                  background: "#111",
-                  border: "1px solid #1e1e1e",
-                  borderRadius: "14px",
-                  padding: "20px 24px",
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      style={{
-                        background: "#1a1a1a",
-                        border: "1px solid #222",
-                        borderRadius: "6px",
-                        padding: "2px 8px",
-                        fontFamily: "'Barlow Condensed', sans-serif",
-                        color: "#00e5a0",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {post.sport}
-                    </div>
-                    <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.2)" }}>{post.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>Head</span>
-                    <HeadDots value={post.head} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)" }}>
-                    <span style={{ color: "rgba(255,255,255,0.25)", marginRight: "6px" }}>⚖</span>
-                    {post.weighing}
-                  </p>
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
-                    <span style={{ color: "#00e5a0", marginRight: "6px" }}>→</span>
-                    {post.win}
-                  </p>
-                </div>
+          {/* Feed cards — exact replica of the real app */}
+          <div className="flex-1 max-w-lg">
+            {/* Feed header */}
+            <div className="mb-5">
+              <div style={{ color: "rgba(255,255,255,0.25)", letterSpacing: "0.18em" }} className="text-xs font-semibold uppercase mb-1">
+                Anonymous
               </div>
-            ))}
+              <div className="flex items-center gap-3">
+                <h3
+                  style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}
+                  className="text-4xl font-black uppercase text-white"
+                >
+                  Community <span style={{ color: GREEN }}>Feed</span>
+                </h3>
+              </div>
+              <p style={{ color: "rgba(255,255,255,0.35)" }} className="text-sm mt-1 font-light">
+                Lacrosse athletes being honest.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {SAMPLE_FEED.map((post) => (
+                <PreviewFeedCard key={post.id} {...post} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Footer CTA strip ─────────────────────────────────────────── */}
+      {/* ── Footer CTA ── */}
       <div style={{ borderTop: "1px solid #141414", background: "#0d0d0d" }}>
         <div className="max-w-6xl mx-auto px-8 md:px-16 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
           <div
@@ -420,11 +455,11 @@ export default function Landing() {
             className="text-2xl font-bold text-white uppercase tracking-wide"
           >
             Lock in your mind.
-            <span style={{ color: "#00e5a0" }}> Start today.</span>
+            <span style={{ color: GREEN }}> Start today.</span>
           </div>
           <button
             onClick={() => setLocation("/sign-up")}
-            style={{ background: "#00e5a0", color: "#0a0a0a" }}
+            style={{ background: GREEN, color: "#0a0a0a" }}
             className="font-bold text-sm px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity shrink-0"
           >
             Get Started Free
