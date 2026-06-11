@@ -84,6 +84,7 @@ export default function Checkin() {
   const [todayCheckin, setTodayCheckin] = useState<any>(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [totalCheckins, setTotalCheckins] = useState(0);
+  const [streak, setStreak] = useState(0);
   const [sport, setSport] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -104,10 +105,29 @@ export default function Checkin() {
       .maybeSingle()
       .then(({ data }) => { if (data) setTodayCheckin(data); });
 
-    // Total count
-    supabase.from("checkins").select("id", { count: "exact", head: true })
+    // Total count + streak
+    supabase.from("checkins").select("created_at")
       .eq("user_id", user.id)
-      .then(({ count }) => { if (count != null) setTotalCheckins(count); });
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        setTotalCheckins(data.length);
+
+        // Collect unique calendar days (UTC)
+        const days = new Set(data.map((r) => r.created_at.slice(0, 10)));
+
+        // Count consecutive days back from today
+        let count = 0;
+        const cursor = new Date();
+        cursor.setUTCHours(0, 0, 0, 0);
+        while (true) {
+          const key = cursor.toISOString().slice(0, 10);
+          if (!days.has(key)) break;
+          count++;
+          cursor.setUTCDate(cursor.getUTCDate() - 1);
+        }
+        setStreak(count);
+      });
   }, [user]);
 
   const handleSubmit = async () => {
@@ -156,10 +176,25 @@ export default function Checkin() {
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }} className="text-5xl font-black uppercase text-white">
             Daily <span style={{ color: GREEN }}>Check-In</span>
           </h1>
-          <div className="flex items-center gap-4 mt-3">
+          <div className="flex items-center gap-4 mt-3 flex-wrap">
             <div style={{ color: "rgba(255,255,255,0.4)" }} className="text-xs">
               <span className="text-white font-semibold">{totalCheckins}</span> total check-ins
             </div>
+            {streak > 0 && (
+              <div style={{
+                background: `${GREEN}15`,
+                border: `1px solid ${GREEN}35`,
+                color: GREEN,
+                borderRadius: "6px",
+                padding: "2px 10px",
+                fontSize: "12px",
+                fontWeight: 700,
+                fontFamily: "'Barlow Condensed', sans-serif",
+                letterSpacing: "0.04em",
+              }}>
+                🔥 {streak} day streak
+              </div>
+            )}
             {sport && (
               <span style={{ background: `${GREEN}18`, border: `1px solid ${GREEN}30`, color: GREEN, borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em" }}>
                 {sport}
