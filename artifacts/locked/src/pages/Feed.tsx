@@ -89,14 +89,92 @@ export default function Feed() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-24">
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", color: "rgba(255,255,255,0.07)" }} className="text-7xl font-black uppercase mb-4">
+          <div className="flex flex-col items-center text-center py-20">
+            {/* Big ghost word */}
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                color: "rgba(255,255,255,0.05)",
+                fontSize: "clamp(64px, 18vw, 96px)",
+                fontWeight: 900,
+                lineHeight: 1,
+                letterSpacing: "-0.02em",
+                textTransform: "uppercase",
+                userSelect: "none",
+                marginBottom: "32px",
+              }}
+            >
               Quiet
             </div>
-            <p style={{ color: "rgba(255,255,255,0.3)" }} className="text-sm">
-              No check-ins yet from your {userSport} community.
-              <br />Be the first today.
-            </p>
+
+            {/* Card */}
+            <div
+              style={{
+                background: "#111",
+                border: `1px solid ${GREEN}30`,
+                borderRadius: "16px",
+                padding: "28px 32px",
+                maxWidth: "340px",
+                width: "100%",
+              }}
+            >
+              {/* Green accent dot */}
+              <div
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  background: GREEN,
+                  margin: "0 auto 16px",
+                  boxShadow: `0 0 12px ${GREEN}80`,
+                }}
+              />
+
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.75)",
+                  fontFamily: "'Barlow', sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  marginBottom: "6px",
+                }}
+              >
+                No check-ins yet from your sport.
+              </p>
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.35)",
+                  fontFamily: "'Barlow', sans-serif",
+                  fontSize: "13px",
+                  marginBottom: "20px",
+                }}
+              >
+                Be the first to share.
+              </p>
+
+              <a
+                href="/checkin"
+                style={{
+                  display: "inline-block",
+                  background: GREEN,
+                  color: "#0a0a0a",
+                  borderRadius: "10px",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 900,
+                  fontSize: "14px",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  padding: "12px 28px",
+                  textDecoration: "none",
+                  transition: "opacity 0.15s",
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.opacity = "0.85")}
+                onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                Do Today's Check-In →
+              </a>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
