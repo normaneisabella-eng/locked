@@ -80,6 +80,7 @@ export default function Checkin() {
   const [energy, setEnergy] = useState(7);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [todayCheckin, setTodayCheckin] = useState<any>(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [totalCheckins, setTotalCheckins] = useState(0);
@@ -123,6 +124,7 @@ export default function Checkin() {
         confidence_score: confidence,
         energy_score: energy,
         note: note.trim() || null,
+        is_public: isPublic,
       })
       .select()
       .single();
@@ -233,6 +235,59 @@ export default function Checkin() {
                 {Math.round(((focus + confidence + energy) / 3) * 10) / 10}
               </span>
             </div>
+
+            {/* Share toggle */}
+            <button
+              type="button"
+              onClick={() => setIsPublic((v) => !v)}
+              style={{
+                background: "#111",
+                border: `1px solid ${isPublic ? GREEN + "50" : "#2a2a2a"}`,
+                borderRadius: "12px",
+                width: "100%",
+                padding: "14px 18px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                cursor: "pointer",
+                transition: "border-color 0.15s",
+              }}
+            >
+              <div style={{ textAlign: "left" }}>
+                <div style={{ color: "rgba(255,255,255,0.75)", fontFamily: "'Barlow', sans-serif", fontSize: "13px", fontWeight: 600 }}>
+                  Share anonymously with community
+                </div>
+                <div style={{ color: "rgba(255,255,255,0.25)", fontSize: "11px", marginTop: "2px" }}>
+                  {isPublic ? "Visible in the community feed" : "Private — only you can see this"}
+                </div>
+              </div>
+              {/* Toggle pill */}
+              <div
+                style={{
+                  width: "44px",
+                  height: "24px",
+                  borderRadius: "999px",
+                  background: isPublic ? GREEN : "#2a2a2a",
+                  position: "relative",
+                  flexShrink: 0,
+                  transition: "background 0.2s",
+                  marginLeft: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "3px",
+                    left: isPublic ? "23px" : "3px",
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    background: isPublic ? "#0a0a0a" : "rgba(255,255,255,0.3)",
+                    transition: "left 0.2s",
+                  }}
+                />
+              </div>
+            </button>
 
             <button
               onClick={handleSubmit}

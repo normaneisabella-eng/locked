@@ -47,6 +47,7 @@ export default function Feed() {
           .from("checkins")
           .select("id, sport, focus_score, confidence_score, energy_score, note, created_at")
           .eq("sport", profile.sport)
+          .eq("is_public", true)
           .order("created_at", { ascending: false })
           .limit(50);
 
