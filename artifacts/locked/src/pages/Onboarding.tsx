@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useProfile } from "@/context/ProfileContext";
 
 const SPORTS = [
   "Lacrosse", "Basketball", "Soccer", "Football", "Baseball",
@@ -27,6 +28,7 @@ export default function Onboarding() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { setProfile } = useProfile();
 
   const canSubmit = !!sport && !!handle.trim() && !!level && !loading;
 
@@ -35,9 +37,11 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
 
+    const trimmedHandle = handle.trim();
+
     const { error: profileError } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, handle: handle.trim(), sport, level });
+      .upsert({ id: user.id, handle: trimmedHandle, sport, level });
 
     if (profileError) {
       setError("Failed to save profile. Try again.");
@@ -45,6 +49,9 @@ export default function Onboarding() {
       return;
     }
 
+    // Push the new profile into context immediately — OnboardingGate
+    // reads from context so it won't bounce back to /onboarding
+    setProfile({ id: user.id, handle: trimmedHandle, sport, level });
     setLocation("/checkin");
   };
 

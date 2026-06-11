@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { supabase } from "@/lib/supabase";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ProfileProvider, useProfile } from "@/context/ProfileContext";
 import Landing from "@/pages/Landing";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
@@ -20,32 +19,15 @@ const queryClient = new QueryClient({
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-type Profile = { id: string; handle: string; sport: string; level: string };
-
 function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const { isLoaded, session, user } = useAuth();
-  // undefined = still loading, null = no profile
-  const [profile, setProfile] = useState<Profile | null | undefined>(undefined);
+  const { isLoaded, session } = useAuth();
+  const { profile } = useProfile();
   const [location] = useLocation();
 
-  useEffect(() => {
-    if (!user) {
-      setProfile(null);
-      return;
-    }
-    setProfile(undefined); // reset while fetching
-    supabase
-      .from("profiles")
-      .select("id, handle, sport, level")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setProfile(data ?? null));
-  }, [user?.id]);
-
-  // Still waiting for auth to load, or for profile fetch to complete
+  // Wait for auth and profile to resolve
   if (!isLoaded || (session && profile === undefined)) return null;
 
-  // Not signed in → send to landing
+  // Not signed in → landing
   if (!session) return <Redirect to="/" />;
 
   const needsOnboarding = !profile;
@@ -92,12 +74,14 @@ function App() {
   return (
     <WouterRouter base={basePath}>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <AppRoutes />
-            <Toaster />
-          </TooltipProvider>
-        </QueryClientProvider>
+        <ProfileProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <AppRoutes />
+              <Toaster />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </ProfileProvider>
       </AuthProvider>
     </WouterRouter>
   );
