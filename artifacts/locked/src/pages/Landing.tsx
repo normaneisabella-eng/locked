@@ -294,7 +294,7 @@ export default function Landing() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Step 1 */}
           <div
             style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }}
@@ -323,9 +323,9 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* Step 2 */}
+          {/* Step 2 — Pre-Game */}
           <div
-            style={{ background: "#111", border: `1px solid ${GREEN}30`, borderRadius: "16px" }}
+            style={{ background: "#111", border: `1px solid ${GREEN}35`, borderRadius: "16px" }}
             className="p-7"
           >
             <div
@@ -336,23 +336,52 @@ export default function Landing() {
                 color: GREEN,
                 lineHeight: 1,
                 marginBottom: "16px",
-                opacity: 0.3,
+                opacity: 0.35,
               }}
             >
               02
             </div>
             <div
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
-              className="text-lg font-bold uppercase text-white mb-2"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em", color: GREEN }}
+              className="text-lg font-bold uppercase mb-2"
             >
-              Do your reps
+              Pre-Game Rep
             </div>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
-              Do your <span style={{ color: GREEN, fontWeight: 600 }}>Pre-Game Rep</span> before training or competition, and a <span style={{ color: "#60a5fa", fontWeight: 600 }}>Post-Game Rep</span> after to track how you actually performed. 2 minutes each.
+              Before training or competition, rate your Focus, Confidence, and Energy. 2 minutes. Know where your head is before you compete.
             </p>
           </div>
 
-          {/* Step 3 */}
+          {/* Step 3 — Post-Game */}
+          <div
+            style={{ background: "#111", border: "1px solid #60a5fa30", borderRadius: "16px" }}
+            className="p-7"
+          >
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "48px",
+                fontWeight: 900,
+                color: "#60a5fa",
+                lineHeight: 1,
+                marginBottom: "16px",
+                opacity: 0.35,
+              }}
+            >
+              03
+            </div>
+            <div
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em", color: "#60a5fa" }}
+              className="text-lg font-bold uppercase mb-2"
+            >
+              Post-Game Rep
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
+              After the game or practice, rate your Performance and Mental Lock-In, and note one thing to improve. 2 minutes.
+            </p>
+          </div>
+
+          {/* Step 4 */}
           <div
             style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }}
             className="p-7"
@@ -367,7 +396,7 @@ export default function Landing() {
                 marginBottom: "16px",
               }}
             >
-              03
+              04
             </div>
             <div
               style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
