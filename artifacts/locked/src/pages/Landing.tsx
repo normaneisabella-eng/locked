@@ -280,17 +280,11 @@ export default function Landing() {
       {/* ── How it works ── */}
       <section className="px-8 md:px-16 py-16 max-w-6xl mx-auto">
         <div className="mb-12">
-          <div
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.18em", color: "rgba(255,255,255,0.2)" }}
-            className="text-xs font-semibold uppercase mb-3"
-          >
-            Simple by design
-          </div>
           <h2
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             className="text-4xl md:text-5xl font-black uppercase text-white leading-tight"
           >
-            How it <span style={{ color: GREEN }}>works</span>
+            How It <span style={{ color: GREEN }}>Works</span>
           </h2>
         </div>
 
@@ -316,10 +310,10 @@ export default function Landing() {
               style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
               className="text-lg font-bold uppercase text-white mb-2"
             >
-              Set up your profile
+              Set Up Your Profile
             </div>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
-              Pick your sport and level. Takes 30 seconds. Everything is personalised from there.
+              Pick your sport and level. Takes 30 seconds. Everything is personalized from there.
             </p>
           </div>
 
@@ -348,7 +342,7 @@ export default function Landing() {
               Pre-Game Rep
             </div>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
-              Before training or competition, rate your Focus, Confidence, and Energy. 2 minutes. Know where your head is before you compete.
+              Before training or competition, know where your head is before you compete. 2 minutes.
             </p>
           </div>
 
@@ -402,7 +396,7 @@ export default function Landing() {
               style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
               className="text-lg font-bold uppercase text-white mb-2"
             >
-              Track your edge
+              Track Your Edge
             </div>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
               See your mental patterns over time. Spot what works, fix what doesn't. Build the consistency that separates good athletes from great ones.
