@@ -277,6 +277,113 @@ export default function Landing() {
         <div style={{ borderTop: "1px solid #1a1a1a" }} className="mt-20" />
       </section>
 
+      {/* ── How it works ── */}
+      <section className="px-8 md:px-16 py-16 max-w-6xl mx-auto">
+        <div className="mb-12">
+          <div
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.18em", color: "rgba(255,255,255,0.2)" }}
+            className="text-xs font-semibold uppercase mb-3"
+          >
+            Simple by design
+          </div>
+          <h2
+            style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+            className="text-4xl md:text-5xl font-black uppercase text-white leading-tight"
+          >
+            How it <span style={{ color: GREEN }}>works</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Step 1 */}
+          <div
+            style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }}
+            className="p-7"
+          >
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "48px",
+                fontWeight: 900,
+                color: `${GREEN}25`,
+                lineHeight: 1,
+                marginBottom: "16px",
+              }}
+            >
+              01
+            </div>
+            <div
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
+              className="text-lg font-bold uppercase text-white mb-2"
+            >
+              Set up your profile
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
+              Pick your sport and level. Takes 30 seconds. Everything is personalised from there.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div
+            style={{ background: "#111", border: `1px solid ${GREEN}30`, borderRadius: "16px" }}
+            className="p-7"
+          >
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "48px",
+                fontWeight: 900,
+                color: GREEN,
+                lineHeight: 1,
+                marginBottom: "16px",
+                opacity: 0.3,
+              }}
+            >
+              02
+            </div>
+            <div
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
+              className="text-lg font-bold uppercase text-white mb-2"
+            >
+              Do your reps
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
+              Do your <span style={{ color: GREEN, fontWeight: 600 }}>Pre-Game Rep</span> before training or competition, and a <span style={{ color: "#60a5fa", fontWeight: 600 }}>Post-Game Rep</span> after to track how you actually performed. 2 minutes each.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div
+            style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px" }}
+            className="p-7"
+          >
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "48px",
+                fontWeight: 900,
+                color: `${GREEN}25`,
+                lineHeight: 1,
+                marginBottom: "16px",
+              }}
+            >
+              03
+            </div>
+            <div
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.06em" }}
+              className="text-lg font-bold uppercase text-white mb-2"
+            >
+              Track your edge
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.6 }}>
+              See your mental patterns over time. Spot what works, fix what doesn't. Build the consistency that separates good athletes from great ones.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ borderTop: "1px solid #1a1a1a" }} className="mt-16" />
+      </section>
+
       {/* ── Check-In Preview ── */}
       <section className="px-8 md:px-16 py-12 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-start gap-16">
