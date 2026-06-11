@@ -1,13 +1,85 @@
+import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const GREEN = "#00e5a0";
 
 const NAV_ITEMS = [
   { href: "/checkin", label: "Check-In" },
   { href: "/feed", label: "Community" },
   { href: "/history", label: "History" },
 ];
+
+function AddToHomeScreenBanner() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem("locked_a2hs_dismissed");
+    if (dismissed) return;
+    // Only show on mobile-sized screens or touch devices
+    const isMobile = window.innerWidth < 768 || "ontouchstart" in window;
+    // Don't show if already running as installed PWA (standalone)
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+    if (isMobile && !isStandalone) setVisible(true);
+  }, []);
+
+  const dismiss = () => {
+    localStorage.setItem("locked_a2hs_dismissed", "1");
+    setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: "#111",
+        borderTop: `1px solid ${GREEN}30`,
+        padding: "14px 20px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+      }}
+    >
+      {/* Green accent bar */}
+      <div style={{ width: "3px", height: "36px", background: GREEN, borderRadius: "2px", flexShrink: 0 }} />
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ color: "white", fontSize: "13px", fontWeight: 600, fontFamily: "'Barlow', sans-serif" }}>
+          Add Locked to your home screen
+        </div>
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", marginTop: "2px", fontFamily: "'Barlow', sans-serif" }}>
+          Tap Share → "Add to Home Screen" for the full experience
+        </div>
+      </div>
+
+      <button
+        onClick={dismiss}
+        aria-label="Dismiss"
+        style={{
+          color: "rgba(255,255,255,0.35)",
+          fontSize: "20px",
+          lineHeight: 1,
+          padding: "4px 8px",
+          flexShrink: 0,
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -30,7 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="text-xl font-bold"
             >
               <span className="text-white">Locke</span>
-              <span style={{ color: "#00e5a0" }}>d</span>
+              <span style={{ color: GREEN }}>d</span>
             </span>
           </Link>
 
@@ -43,7 +115,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     data-testid={`nav-${item.href.slice(1)}`}
                     style={{
                       fontFamily: "'Barlow', sans-serif",
-                      background: active ? "#00e5a0" : "transparent",
+                      background: active ? GREEN : "transparent",
                       color: active ? "#0a0a0a" : "rgba(255,255,255,0.45)",
                       cursor: "pointer",
                     }}
@@ -68,6 +140,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <main className="flex-1">{children}</main>
+
+      <AddToHomeScreenBanner />
     </div>
   );
 }

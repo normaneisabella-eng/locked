@@ -113,13 +113,17 @@ export default function Checkin() {
         if (!data) return;
         setTotalCheckins(data.length);
 
-        // Collect unique calendar days (UTC)
+        // Unique calendar days
         const days = new Set(data.map((r) => r.created_at.slice(0, 10)));
 
-        // Count consecutive days back from today
-        let count = 0;
+        // If today has no check-in, start counting from yesterday
+        // so we show the "active streak to maintain" before they check in
+        const todayKey = new Date().toISOString().slice(0, 10);
         const cursor = new Date();
         cursor.setUTCHours(0, 0, 0, 0);
+        if (!days.has(todayKey)) cursor.setUTCDate(cursor.getUTCDate() - 1);
+
+        let count = 0;
         while (true) {
           const key = cursor.toISOString().slice(0, 10);
           if (!days.has(key)) break;
@@ -156,6 +160,8 @@ export default function Checkin() {
       setTodayCheckin(data);
       setJustSubmitted(true);
       setTotalCheckins((t) => t + 1);
+      // Today now counts — increment streak by 1
+      setStreak((s) => s + 1);
     }
   };
 
@@ -168,39 +174,47 @@ export default function Checkin() {
 
   return (
     <AppLayout>
-      <div className="max-w-xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <div style={{ color: "rgba(255,255,255,0.25)", letterSpacing: "0.18em" }} className="text-xs font-semibold uppercase mb-2">
+      <div className="max-w-xl mx-auto px-6 py-8">
+
+        {/* ── Streak Hero — always visible ── */}
+        <div className="mb-8 text-center">
+          <div style={{ color: "rgba(255,255,255,0.25)", letterSpacing: "0.18em" }} className="text-xs font-semibold uppercase mb-5">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
-          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }} className="text-5xl font-black uppercase text-white">
-            Daily <span style={{ color: GREEN }}>Check-In</span>
-          </h1>
-          <div className="flex items-center gap-4 mt-3 flex-wrap">
-            <div style={{ color: "rgba(255,255,255,0.4)" }} className="text-xs">
+
+          <div
+            style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: "clamp(80px, 20vw, 120px)",
+              lineHeight: 1,
+              color: GREEN,
+              fontWeight: 900,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {streak}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "15px", marginTop: "6px", letterSpacing: "0.02em" }}>
+            🔥 day streak
+          </div>
+
+          <div className="flex items-center justify-center gap-4 mt-5 flex-wrap">
+            <div style={{ color: "rgba(255,255,255,0.35)" }} className="text-xs">
               <span className="text-white font-semibold">{totalCheckins}</span> total check-ins
             </div>
-            {streak > 0 && (
-              <div style={{
-                background: `${GREEN}15`,
-                border: `1px solid ${GREEN}35`,
-                color: GREEN,
-                borderRadius: "6px",
-                padding: "2px 10px",
-                fontSize: "12px",
-                fontWeight: 700,
-                fontFamily: "'Barlow Condensed', sans-serif",
-                letterSpacing: "0.04em",
-              }}>
-                🔥 {streak} day streak
-              </div>
-            )}
             {sport && (
               <span style={{ background: `${GREEN}18`, border: `1px solid ${GREEN}30`, color: GREEN, borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em" }}>
                 {sport}
               </span>
             )}
           </div>
+        </div>
+
+        {/* ── Page title ── */}
+        <div style={{ borderTop: "1px solid #1a1a1a" }} className="pt-7 mb-6">
+          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }} className="text-4xl font-black uppercase text-white">
+            Daily <span style={{ color: GREEN }}>Check-In</span>
+          </h1>
         </div>
 
         {displayScores ? (
@@ -296,31 +310,8 @@ export default function Checkin() {
                   {isPublic ? "Visible in the community feed" : "Private — only you can see this"}
                 </div>
               </div>
-              {/* Toggle pill */}
-              <div
-                style={{
-                  width: "44px",
-                  height: "24px",
-                  borderRadius: "999px",
-                  background: isPublic ? GREEN : "#2a2a2a",
-                  position: "relative",
-                  flexShrink: 0,
-                  transition: "background 0.2s",
-                  marginLeft: "16px",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "3px",
-                    left: isPublic ? "23px" : "3px",
-                    width: "18px",
-                    height: "18px",
-                    borderRadius: "50%",
-                    background: isPublic ? "#0a0a0a" : "rgba(255,255,255,0.3)",
-                    transition: "left 0.2s",
-                  }}
-                />
+              <div style={{ width: "44px", height: "24px", borderRadius: "999px", background: isPublic ? GREEN : "#2a2a2a", position: "relative", flexShrink: 0, transition: "background 0.2s", marginLeft: "16px" }}>
+                <div style={{ position: "absolute", top: "3px", left: isPublic ? "23px" : "3px", width: "18px", height: "18px", borderRadius: "50%", background: isPublic ? "#0a0a0a" : "rgba(255,255,255,0.3)", transition: "left 0.2s" }} />
               </div>
             </button>
 
