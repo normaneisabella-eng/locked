@@ -266,7 +266,11 @@ export default function Checkin() {
 
   useEffect(() => {
     if (!user) return;
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const today = now.toISOString().split("T")[0];
+    const tomorrow = new Date(now);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const tomorrowKey = tomorrow.toISOString().split("T")[0];
 
     supabase.from("profiles").select("sport").eq("id", user.id).single()
       .then(({ data }) => { if (data) setSport(data.sport); });
@@ -274,12 +278,12 @@ export default function Checkin() {
     // Load today's pre and post separately
     supabase.from("checkins").select("*")
       .eq("user_id", user.id).eq("type", "pre")
-      .gte("created_at", `${today}T00:00:00`).lt("created_at", `${today}T23:59:59`)
+      .gte("created_at", `${today}T00:00:00.000Z`).lt("created_at", `${tomorrowKey}T00:00:00.000Z`)
       .maybeSingle().then(({ data }) => { if (data) setTodayPre(data); });
 
     supabase.from("checkins").select("*")
       .eq("user_id", user.id).eq("type", "post")
-      .gte("created_at", `${today}T00:00:00`).lt("created_at", `${today}T23:59:59`)
+      .gte("created_at", `${today}T00:00:00.000Z`).lt("created_at", `${tomorrowKey}T00:00:00.000Z`)
       .maybeSingle().then(({ data }) => { if (data) setTodayPost(data); });
 
     // Total pre-game count + streak (pre-game only)
