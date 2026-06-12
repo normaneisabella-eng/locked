@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "mDsUxBu5Pkp_kt-vbxw4B"
+uri = "file://artifacts/locked-mobile/assets/images/icon.png"
+type = "image"
+title = "generated_image"

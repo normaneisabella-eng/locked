@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/locked-mobile/"
+title = "Locked Mobile"
+version = "1.0.0"
+id = "artifacts/locked-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/locked-mobile/" ]
+localPort = 24165
+
+[services.development]
+run = "pnpm --filter @workspace/locked-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/locked-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/locked-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "24165"
+BASE_PATH = "/locked-mobile/"
