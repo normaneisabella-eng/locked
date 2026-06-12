@@ -18,7 +18,7 @@ integrations = ["github:1.0.0"]
 
 [postMerge]
 path = "scripts/post-merge.sh"
-timeoutMs = 20000
+timeoutMs = 120000
 
 [[ports]]
 localPort = 8080
@@ -54,6 +54,7 @@ VITE_SUPABASE_URL = "https://zzshjviscmillyujezdw.supabase.co"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6c2hqdmlzY21pbGx5dWplemR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzkyOTYsImV4cCI6MjA5NjYxNTI5Nn0.Fp_Rz5Z0oY0BQJY2qXEmz0ILv46IwIxx8TmddRiYccc"
 SUPABASE_URL = "https://zzshjviscmillyujezdw.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6c2hqdmlzY21pbGx5dWplemR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzkyOTYsImV4cCI6MjA5NjYxNTI5Nn0.Fp_Rz5Z0oY0BQJY2qXEmz0ILv46IwIxx8TmddRiYccc"
+GITHUB_REPO = "normaneisabella-eng/locked"
 
 [nix]
 channel = "stable-25_05"
