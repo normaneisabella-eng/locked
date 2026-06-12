@@ -18,7 +18,7 @@ if [ -n "$GITHUB_PAT" ] && [ -n "$GITHUB_REPO" ]; then
   git remote add github "https://github.com/${GITHUB_REPO}.git" 2>/dev/null || \
     git remote set-url github "https://github.com/${GITHUB_REPO}.git"
 
-  GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git push github HEAD:main
+  GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git push --force github HEAD:main
 
   rm -f "$ASKPASS"
   echo "GitHub push complete."
